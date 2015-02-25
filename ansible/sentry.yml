@@ -1,0 +1,9 @@
+---
+# sentry playbook
+- hosts: default
+  roles:
+    - common
+    - webserver
+    - postgres
+    - redis
+    - sentry

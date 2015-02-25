@@ -1,0 +1,66 @@
+---
+# sentry tasks
+
+- name: install build dependencies
+  tags: sentry
+  apt: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - python-dev
+    - libxml2-dev
+    - libxslt1-dev
+    - libffi-dev
+    - postgresql-server-dev-all
+
+- name: install sentry
+  tags: sentry
+  pip: name={{ item }} virtualenv=/www/sentry state=present
+  with_items:
+    - sentry[postgres]
+
+- name: configure sentry
+  tags: sentry
+  copy: src={{ item.src }} dest={{ item.dest }} mode="0644"
+  with_items:
+    - { src: '../files/sentry.conf.py', dest: '/etc/sentry.conf.py' }
+
+# - name: patch https://github.com/getsentry/sentry/issues/1438
+#   patch: >
+#     src=../files/gh-1438.patch
+#     dest=/www/sentry/lib/python2.7/site-packages/sentry/wsgi.py
+
+- name: setup database
+  tags: sentry
+  sudo: yes
+  sudo_user: "postgres"
+  postgresql_db: name=sentry state=present
+
+- name: setup database user
+  tags: sentry
+  sudo: yes
+  sudo_user: "postgres"
+  postgresql_user: db=sentry name=sentry password=ceec4eif7ya priv=ALL state=present
+
+- name: setup database schema
+  tags: sentry
+  command: /www/sentry/bin/sentry --config=/etc/sentry.conf.py upgrade
+
+#- name: create sentry user
+#  tags: sentry
+#  command: /www/sentry/bin/sentry --config=/etc/sentry.conf.py createuser
+
+- name: configure supervisor
+  tags: sentry
+  copy: src={{ item.src }} dest={{ item.dest }} mode="0644"
+  with_items:
+    - { src: '../files/supervisor.conf', dest: '/etc/supervisor/conf.d/sentry.conf' }
+  notify:
+    - supervisorctl reread
+    - supervisorctl update
+
+- name: run sentry-web
+  tags: sentry
+  supervisorctl: name=sentry-web state=started
+
+- name: run sentry-worker
+  tags: sentry
+  supervisorctl: name=sentry-worker state=started

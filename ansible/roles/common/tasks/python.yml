@@ -1,0 +1,9 @@
+---
+# python tasks
+
+- name: install python tools
+  tags: supervisor
+  apt: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - python-pip
+    - virtualenvwrapper
