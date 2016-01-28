@@ -1,3 +1,15 @@
 ---
-# site playbook
-- include: sentry.yml
+- name: provision sentry in vagrant box
+  hosts: vagrant
+  sudo: yes
+
+  vars:
+    - redis_version_latest: True
+
+  roles:
+    - common
+    - webserver
+    - postgresql
+    - redis
+    - supervisor
+    - sentry
