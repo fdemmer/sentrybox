@@ -17,11 +17,16 @@
   with_items:
     - sentry[postgres]
 
+- name: create configuration directory
+  tags: sentry
+  file: path=/etc/sentry/ state=directory mode=0755
+
 - name: configure sentry
   tags: sentry
   copy: src={{ item.src }} dest={{ item.dest }} mode="0644"
   with_items:
-    - { src: '../files/sentry.conf.py', dest: '/etc/sentry.conf.py' }
+    - { src: '../files/sentry.conf.py', dest: '/etc/sentry/sentry.conf.py' }
+    - { src: '../files/config.yml', dest: '/etc/sentry/config.yml' }
 
 # - name: patch https://github.com/getsentry/sentry/issues/1438
 #   patch: >
@@ -42,11 +47,11 @@
 
 - name: setup database schema
   tags: sentry
-  command: /www/sentry/bin/sentry --config=/etc/sentry.conf.py upgrade
+  command: /www/sentry/bin/sentry --config=/etc/sentry upgrade
 
 #- name: create sentry user
 #  tags: sentry
-#  command: /www/sentry/bin/sentry --config=/etc/sentry.conf.py createuser
+#  command: /www/sentry/bin/sentry --config=/etc/sentry createuser
 
 - name: configure supervisor
   tags: sentry
