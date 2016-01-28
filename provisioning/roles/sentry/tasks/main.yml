@@ -54,8 +54,8 @@
   with_items:
     - { src: '../files/supervisor.conf', dest: '/etc/supervisor/conf.d/sentry.conf' }
   notify:
-    - supervisorctl reread
-    - supervisorctl update
+    - supervisor reread
+    - supervisor update
 
 - name: run sentry-web
   tags: sentry
