@@ -1,0 +1,20 @@
+About
+-----
+
+Basic sentry installation in a vagrant box.
+
+
+Requirements
+------------
+
+Uses ansible roles defined in https://github.com/fdemmer/ansible_roles
+
+
+Quickstart
+----------
+
+- Clone the repository
+- Run `vagrant up`
+- SSH into the box `vagrant ssh` and create initial superuser:
+  `$ SENTRY_CONF=/etc/sentry /www/sentry/bin/sentry createuser`
+- Enjoy sentry on http://10.10.10.100:9000
